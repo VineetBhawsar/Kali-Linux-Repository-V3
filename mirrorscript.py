@@ -45,7 +45,8 @@ mirrors = {
 'http://archive-8.kali.org/kali' : 0 ,
 'http://mirror.pwnieexpress.com/kali' : 0 ,
 'http://archive-7.kali.org/kali' : 0 ,
-'http://mirrors.ocf.berkeley.edu/kali' : 'Request Times Out'
+'http://ftp.acc.umu.se/mirror/kali.org/kali' : 0,
+'http://mirrors.ocf.berkeley.edu/kali' : 0
 }
 
 #help menu
