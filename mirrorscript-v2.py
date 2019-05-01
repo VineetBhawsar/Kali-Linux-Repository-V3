@@ -3,15 +3,36 @@
 import subprocess, requests, re, sys
 import operator
 import argparse, apt, os
+import threading
 from shutil import copyfile
 
+result_url = []
+
+class fetch_thread(threading.Thread):	
+	def __init__(self, count, url,schema):
+		threading.Thread.__init__(self)
+		self.count = count + 1
+		self.url = url
+		self.schema = schema
+
+	def run(self):
+		response = requests.get(self.schema+self.url).status_code
+		if response == 200:
+			result_url.append(self.url)
+
 def fetch_url(urls,schema):
-	new_urls = []
-	for url in urls:
-			response = requests.get(schema+url).status_code
-			if response == 200:
-				new_urls.append(url)
-	return new_urls
+	threads = []	
+	for count, url in enumerate(urls):
+		count = fetch_thread(count, url,schema)
+		threads.append(count)
+
+	for i in threads:
+		i.start()
+
+	for i in threads:
+		i.join()
+
+	return result_url
 
 def ask(question,default):
 	yes = set(['yes','y','ye'])
@@ -99,7 +120,7 @@ if __name__ == "__main__":
 			print("\t- https" + url)
 		print("")
 
-	print("[+] Checking mirrors ... This could take some times.")
+	print("[+] Checking mirrors ...")
 	schema = 'https' if https else 'http'
 	new_urls = fetch_url(urls,schema)
 
