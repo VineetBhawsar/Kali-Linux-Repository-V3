@@ -39,7 +39,7 @@ def ask(question,default):
 	no = set(['no','n'])
 	yes.add('') if default == 'y' else no.add('')
 	while True:
-		choice = raw_input(question + " Default [" + default + "]: ").lower()
+		choice = input(question + " Default [" + default + "]: ").lower()
 		if choice in yes:
 			return True
 		elif choice in no:
@@ -49,6 +49,8 @@ def ask(question,default):
 
 def ping(hostname):
 	p = subprocess.Popen(['ping','-c 3', hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+	p = [str(x.decode('utf-8')) for x in p]
+
 	if not p[0].strip():
 		# error
 		print("\t[!] Error: Something went wrong ...")
@@ -134,7 +136,7 @@ if __name__ == "__main__":
 			p = ping(hostname)
 			try:
 				average = p[0].strip().splitlines()[7].split('=')[1].split('/')[1]
-				mirrors[str(hostname.encode("utf-8"))] = str(str(average).zfill(7))
+				mirrors[hostname] = str(str(average).zfill(7))
 				break
 			except Exception as e:
 				if not ask("\t[!] Something went wrong. would you like to try again [y] or [n].",'y'):
@@ -147,9 +149,9 @@ if __name__ == "__main__":
 	if verbose:
 		print("")
 
+	
 	# sorted to fastest mirror
 	sorted_mirrors = sorted(mirrors.items(), key=operator.itemgetter(1))
-	
 	print("[+] Fastest mirror: " + str(sorted_mirrors[0]))
 
 	print("[+] Preparing ...")
@@ -207,7 +209,7 @@ if __name__ == "__main__":
 	print("[+] Updating sources.list with new entry ...")
 	
 	matching = [s for s in urls if sorted_mirrors[0][0] in s]
-	new_mirror = schema + matching[0].encode("utf-8")
+	new_mirror = schema + matching[0]
 	if verbose:
 		print("\t- Your new mirror: " + new_mirror + "\n")
 
