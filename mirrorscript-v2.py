@@ -135,8 +135,11 @@ if __name__ == "__main__":
 		while True:
 			p = ping(hostname)
 			try:
-				average = p[0].strip().splitlines()[7].split('=')[1].split('/')[1]
-				mirrors[hostname] = str(str(average).zfill(7))
+				if "100% packet loss" in p[0].strip():
+					average = "[!] Unable to check " + hostname + " latency, potentially host block ICMP request."
+				else:
+					average = p[0].strip().splitlines()[7].split('=')[1].split('/')[1]
+					mirrors[hostname] = str(str(average).zfill(7))
 				break
 			except Exception as e:
 				if not ask("\t[!] Something went wrong. would you like to try again [y] or [n].",'y'):
