@@ -127,7 +127,7 @@ if __name__ == "__main__":
 	urls = re.findall(r'(?:href="http(?:s|))(.*)(?:/README")',response)[2:]
 	
 	if verbose:
-		print("[+] Found a lists of mirrors:")
+		print("[+] Found (" + str(len(urls)) + ") lists of mirrors:")
 		for url in urls:
 			print("\t- https" + url)
 		print("")
@@ -184,7 +184,7 @@ if __name__ == "__main__":
 		print("\t- Commenting older entries ...")
 	i = 0
 	for line in file.readlines():
-		if (re.search(r'^deb http(?:s|)://http.kali.org/kali', line, re.I)) or (re.search(r'^deb-src http(?:s|)://http.kali.org/kali', line, re.I)):
+		if (re.search(r'^deb http(?:s|)://http\.kali\.org/kali', line, re.I)) or (re.search(r'^deb-src http(?:s|)://http\.kali\.org/kali', line, re.I)):
 			newline = "#" + line
 			file.write(newline)
 			contents.append(newline)
@@ -241,6 +241,6 @@ if __name__ == "__main__":
 
 	print("[+] Done!")
 	if verbose:
-		print("\t- Run 'apt clean; apt update' for the changes to load.\n")
+		print("\t- Run 'sudo apt clean; sudo apt update' for the changes to load.\n")
 	else:
 		print("")
