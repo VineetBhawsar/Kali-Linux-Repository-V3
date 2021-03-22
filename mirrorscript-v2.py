@@ -17,9 +17,14 @@ class fetch_thread(threading.Thread):
 		self.schema = schema
 
 	def run(self):
-		response = requests.get(self.schema+self.url, headers=headers).status_code
-		if response == 200:
-			result_url.append(self.url)
+		try:
+			response = requests.get(self.schema+self.url, headers=headers).status_code
+			if response == 200:
+				result_url.append(self.url)
+			else:
+				print("[!] " + self.url + " doesn't support " + self.schema)
+		except Exception as e:
+			print("[!] Failed to establish a connection to host " + self.schema + self.url)
 
 def fetch_url(urls,schema):
 	threads = []	
