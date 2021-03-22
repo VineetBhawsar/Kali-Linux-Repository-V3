@@ -7,6 +7,7 @@ import threading
 from shutil import copyfile
 
 result_url = []
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'}
 
 class fetch_thread(threading.Thread):	
 	def __init__(self, count, url,schema):
@@ -16,7 +17,7 @@ class fetch_thread(threading.Thread):
 		self.schema = schema
 
 	def run(self):
-		response = requests.get(self.schema+self.url).status_code
+		response = requests.get(self.schema+self.url, headers=headers).status_code
 		if response == 200:
 			result_url.append(self.url)
 
@@ -113,7 +114,7 @@ if __name__ == "__main__":
 				sys.exit(1)
 
 	print("[+] Getting mirror list ...")
-	response = requests.get('https://http.kali.org/README.mirrorlist').text
+	response = requests.get('https://http.kali.org/README.mirrorlist', headers=headers).text
 	urls = re.findall(r'(?:href="http(?:s|))(.*)(?:/README")',response)[2:]
 	
 	if verbose:
@@ -234,4 +235,3 @@ if __name__ == "__main__":
 		print("\t- Run 'apt clean; apt update' for the changes to load.\n")
 	else:
 		print("")
-    
