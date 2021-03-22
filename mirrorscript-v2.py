@@ -91,27 +91,31 @@ if __name__ == "__main__":
 	print("# https://www.metahackers.pro/speed-kali-linux-update/")
 	print("#\n")
 
-	# Preparing
-	cache = apt.Cache()
-	cache.open()
-
 	if https:
+		cache = apt.Cache()
+		cache.open()
+
 		package = "apt-transport-https" 
 		print("[-] Checking if '" + package + "' package is installed.")
-		if cache[package].is_installed:
-			if verbose:
-				print("\t- "+package+" is installed\n")
-		else:
-			print("\t! "+package+" is NOT installed. Attempting to install ...")
-			cache[package].mark_install()
-			print("\t- Installing "+package+"\n")
-			try:
-				cache.commit()
-				print("\n\t- "+package+" installed succesfully")
-			except Exception as e:
-				print("\t! package "+package+" is failing to install")
-				print("\t  "+str(e))
-				sys.exit(1)
+		try:
+			if cache[package].is_installed:
+				if verbose:
+					print("\t- "+package+" is installed\n")
+			else:
+				print("\t! "+package+" is NOT installed. Attempting to install ...")
+				cache[package].mark_install()
+				print("\t- Installing "+package+"\n")
+				try:
+					cache.commit()
+					print("\n\t- "+package+" installed succesfully")
+				except Exception as e:
+					print("\t! package "+package+" is failing to install")
+					print("\t  "+str(e))
+					sys.exit(1)
+		except KeyError as e:
+			print("[!] The package \"" + package + "\" could not found in local apt cache. You may need to install it manually later after you've done update kali.")
+			print("    For the time being, re-run the script without https support.")
+			sys.exit(1)
 
 	print("[+] Getting mirror list ...")
 	response = requests.get('https://http.kali.org/README.mirrorlist', headers=headers).text
