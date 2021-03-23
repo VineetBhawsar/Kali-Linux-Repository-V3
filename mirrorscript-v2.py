@@ -7,6 +7,8 @@ import threading
 from shutil import copyfile
 
 result_url = []
+ping_result = []
+mirrors = {}
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'}
 
 class fetch_thread(threading.Thread):	
@@ -53,22 +55,51 @@ def ask(question,default):
 		else:
 			print("\t    Please answer with [y] or [n]: ");
 
-def ping(hostname):
-	p = subprocess.Popen(['ping','-c 3', hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-	p = [str(x.decode('utf-8')) for x in p]
+class ping_thread(threading.Thread):
+	def __init__(self, count, hostname):
+		super(ping_thread, self).__init__()
+		self.count = count + 1
+		self.hostname = hostname
 
-	if not p[0].strip():
-		# error
-		print("\t[!] Error: Something went wrong ...")
-		print("\t    " + p[1].strip())
+	def run(self):
+		p = subprocess.Popen(['ping','-c 3', self.hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+		p = [str(x.decode('utf-8')) for x in p]
 
-		response = ask("\t    I got stuck at finding mirror latency. Do you want to retry[y] or skip[n]?",'n')
-		if response:
-			ping(hostname)
+		if not p[0].strip():
+			# error
+			print("\t[!] Error: Something went wrong ...")
+			print("\t    " + p[1].strip())
+			response = ask("\t   Stuck at finding mirror latency. Do you want to retry[y] or skip[n]?",'n')
+			if response:
+				run(self.hostname)
 		else:
-			return p
-	else:
-		return p
+			try:
+				if "100% packet loss" in p[0].strip():
+					average = "[!] Unable to check " + self.hostname + " latency, potentially host block ICMP request."
+				else:
+					average = p[0].strip().splitlines()[7].split('=')[1].split('/')[1]
+					mirrors[self.hostname] = str(str(average).zfill(7))
+			except Exception as e:
+				if not ask("\t[!] Something went wrong. would you like to try again [y] or [n].",'y'):
+					print ("\t    Exiting ...\n")
+					sys.exit(1)
+			if verbose:
+				print("\t- {0:30} : {1}".format(self.hostname,average))
+
+def ping_s(hostname):
+	threads = []
+	for count, hostname in enumerate(hostname):
+		count = ping_thread(count, hostname)
+		threads.append(count)
+
+	for i in threads:
+		i.start()
+
+	for i in threads:
+		i.join()
+
+	return ping_result
+
 
 if __name__ == "__main__":
 
@@ -136,33 +167,19 @@ if __name__ == "__main__":
 	schema = 'https' if https else 'http'
 	new_urls = fetch_url(urls,schema)
 
-	mirrors = {}
 	print("[+] Finding the best latency")
 
+	hosts = []
 	for hostname in new_urls:
 		hostname = hostname.split("//")[-1].split("/")[0].split('?')[0]
-
-		while True:
-			p = ping(hostname)
-			try:
-				if "100% packet loss" in p[0].strip():
-					average = "[!] Unable to check " + hostname + " latency, potentially host block ICMP request."
-				else:
-					average = p[0].strip().splitlines()[7].split('=')[1].split('/')[1]
-					mirrors[hostname] = str(str(average).zfill(7))
-				break
-			except Exception as e:
-				if not ask("\t[!] Something went wrong. would you like to try again [y] or [n].",'y'):
-					print ("\t    Exiting ...\n")
-					sys.exit(1)
-
-		if verbose:
-			print("\t- {0:30} : {1}".format(hostname,average))
+		hosts.append(hostname)
+	
+	# sending ping in threads
+	ping_s(hosts)	
 
 	if verbose:
 		print("")
 
-	
 	# sorted to fastest mirror
 	sorted_mirrors = sorted(mirrors.items(), key=operator.itemgetter(1))
 	print("[+] Fastest mirror: " + str(sorted_mirrors[0]))
