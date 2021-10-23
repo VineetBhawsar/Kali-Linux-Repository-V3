@@ -1,4 +1,4 @@
-#!/usr/env/bin python3
+#!/usr/bin/python3
 # Mirrorscript v2 By Hazmirul Afiq
 import subprocess, requests, re, sys
 import operator
