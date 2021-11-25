@@ -1,4 +1,4 @@
-# Mirrorscript-v2
+#fsociety-v1
 Script to change official Kali repository to mirrors. This helps increase packages update and downloading for some user.
 
 ## Requirements
@@ -27,8 +27,7 @@ optional arguments:
 ```
 # python3 mirrorscript-v2.py -v -https -src
 
-#
-# Mirrorscripts-v2 - By Hazmirul Afiq
+
 # Automatically select the best Kali mirror and apply the configuration
 # https://github.com/IceM4nn/mirrorscript-v2
 # https://www.metahackers.pro/speed-kali-linux-update/
