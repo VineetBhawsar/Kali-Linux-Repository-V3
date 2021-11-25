@@ -1,5 +1,5 @@
 # Mirrorscript-v2
-Script to change official Kali repository to mirrors. This helps increase packages update and downloading for some user. Please visit my blog [post](https://www.metahackers.pro/speed-kali-linux-update/).
+Script to change official Kali repository to mirrors. This helps increase packages update and downloading for some user.
 
 ## Requirements
 Kali Linux,
