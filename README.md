@@ -1,4 +1,4 @@
-#fsociety-v1
+
 Script to change official Kali repository to mirrors. This helps increase packages update and downloading for some user.
 
 ## Requirements
